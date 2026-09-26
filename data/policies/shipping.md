@@ -12,7 +12,7 @@ Orders are dispatched within 2 working days. Delivery inside India usually takes
 
 ## Shipping costs
 
-Shipping is free on orders above ₹999 inside India. Below that, a flat fee of ₹79 applies. International shipping is calculated at checkout from the parcel weight and destination.
+Shipping is free on orders of ₹999 or more inside India. Below ₹999, a flat fee of ₹79 applies. International shipping is calculated at checkout from the parcel weight and destination.
 
 ## Customs and duties
 

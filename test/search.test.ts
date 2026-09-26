@@ -19,6 +19,7 @@ describe("tokenize", () => {
     expect(stem("glasses")).toBe("glass");
     expect(stem("policies")).toBe("policy");
     expect(stem("opened")).toBe("open");
+    expect(stem("delivery")).toBe(stem("delivered"));
   });
 });
 
@@ -74,13 +75,18 @@ describe("answer sources", () => {
     expect(hits.map((hit) => hit.id)).toContain("policy:returns#opened-tins");
   });
 
-  it("finds nothing when the data does not cover the question", () => {
-    expect(index.search("Do you ship to Canada?", { minCoverage: MIN_ANSWER_COVERAGE })).toEqual([]);
+  it("rates Canada below the full-match bar but still finds the shipping list", () => {
+    const hits = index.search("Do you ship to Canada?");
+    expect(hits.map((hit) => hit.id)).toContain("faq-001");
+    expect(hits.every((hit) => hit.coverage < MIN_ANSWER_COVERAGE)).toBe(true);
   });
 
-  it("splits a policy into citable sections without the sample-data note", () => {
+  it("splits a policy into citable sections and marks the first as its scope", () => {
     const passages = policyPassages("returns", data.policies.returns ?? "");
     expect(passages.map((passage) => passage.id)).toContain("policy:returns#opened-tins");
     expect(passages.every((passage) => !/sample policy/i.test(passage.text))).toBe(true);
+    expect(passages.filter((passage) => passage.scope).map((passage) => passage.id)).toEqual([
+      "policy:returns#what-can-be-returned",
+    ]);
   });
 });

@@ -8,9 +8,9 @@ An MCP server that lets AI assistants such as Claude Desktop and Cursor answer c
 
 - **A business's own files, connected to an AI assistant.** Sunleaf Tea Co. is a made-up tea shop. Its catalog, FAQs and policies are plain JSON and Markdown files in [`data/`](data/).
 - **Read-only.** The assistant can search and read. It cannot change anything.
-- **Cited answers.** Every passage comes with an id the assistant can cite, such as `[faq-006]` or `[policy:returns#opened-tins]`.
-- **No guessing.** When the data does not cover a question, the server says so, so the assistant does not make something up.
-- **No API keys, no network.** It runs locally over stdio, and nothing leaves your machine.
+- **Cited answers.** Every passage comes with an id the assistant can cite, such as `[faq-006]` or `[policy:returns#opened-tins]`, and each policy's scope rules travel with any section of it that is returned.
+- **Honest when unsure.** When nothing in the data matches, the server says so. When only part of a question matches, it returns the closest passages marked as partial, and the assistant is told to answer only from what they actually say.
+- **No API keys, no network calls.** The server runs locally over stdio and makes no network requests itself. Your AI client may send the data it returns to its model provider (see Security notes).
 
 ## Tools, resources and prompt
 
@@ -20,7 +20,7 @@ An MCP server that lets AI assistants such as Claude Desktop and Cursor answer c
 | `get_product` | tool | Full details for one product id |
 | `search_faqs` | tool | The best-matching FAQ entries, with their ids |
 | `get_policy` | tool | The full shipping, returns, privacy or wholesale policy |
-| `answer_sources` | tool | Searches FAQs and policies together and returns cited passages, or says the data does not cover the question |
+| `answer_sources` | tool | Searches FAQs and policies together. Returns cited passages marked as answers or partial matches, with each policy's scope rules, and says so when nothing matches |
 | `sunleaf://catalog` | resource | All products (JSON) |
 | `sunleaf://faqs` | resource | All FAQs (JSON) |
 | `sunleaf://policies/{name}` | resource template | One policy (Markdown) |
@@ -98,7 +98,8 @@ npx @modelcontextprotocol/inspector --cli node build/index.js --method tools/lis
 - "Do you have a caffeine-free tea under $15?"
 - "What is your return policy for opened tins?"
 - "How should I brew the Darjeeling first flush?"
-- "Do you ship to Canada?" The data does not mention Canada, so the assistant should say this is not covered instead of guessing.
+- "Do you ship to Canada?" The shipping policy lists where the shop ships and Canada is not on it, so the assistant should say no and cite the policy.
+- "What is your FSSAI licence number?" The data does not hold it, so the assistant should say the data does not cover it.
 
 ## Use your own data
 
@@ -118,6 +119,8 @@ my-shop/
 - **products.json**: an array of products with `id`, `name`, `category`, `price_inr`, `price_usd`, `sizes` (list), `in_stock` (true or false), `tags` (list) and `short_description`.
 - **faqs.json**: an array of FAQs with `id`, `question`, `answer` and `tags` (list).
 - **policies/**: Markdown files. Each `## ` heading becomes a separate section that can be cited. Missing policy files are skipped.
+- **Start each policy with a section that states its scope**, such as where you ship or who can apply. `answer_sources` returns that first section together with any other section of the same policy, so an answer about shipping costs cannot lose the rule about destinations.
+- **Ids ignore case and surrounding spaces**, in validation and lookup alike. `X-1` and `x-1` count as the same id, so a file with both is rejected as a duplicate.
 
 The server checks both JSON files when it starts, and stops with a clear message if a field is missing or an id is used twice.
 
@@ -155,8 +158,11 @@ Coming soon: Claude Desktop (`docs/claude-desktop.png`), Cursor (`docs/cursor.pn
 
 - `src/index.ts` starts the server over stdio. It never writes to stdout, because stdout carries the MCP protocol. Logs go to stderr.
 - `src/server.ts` registers the tools, resources and prompt with the official MCP TypeScript SDK (`@modelcontextprotocol/server` v2).
-- `src/search.ts` is a small offline keyword search. A word in a product name or FAQ question counts 3 times, in tags 2 times and in body text once, and rare words count more than common ones. `answer_sources` only returns a passage that covers at least half of the question (weighted by rarity), which is what turns "Do you ship to Canada?" into "not covered".
+- `src/search.ts` is a small offline keyword search. A word in a product name or FAQ question counts 3 times, in tags 2 times and in body text once, and rare words count more than common ones.
+- `answer_sources` grades each passage by the share of the question it covers, weighted by rarity. At least half: it is returned as an answer. Less: the closest passages come back marked as partial, because some questions are answered by exclusion ("Do you ship to Canada?" is answered by the list of countries the shop ships to). Nothing at all: it says so.
 - `src/data.ts` loads and checks the data folder.
+
+**Limits.** This is keyword search, not semantic search. A paraphrase that shares no words with the data can miss, and no retrieval method can guarantee that an AI never guesses. For real business data, add embeddings or a synonym list, and keep the instruction to answer only from returned passages.
 
 ## Development
 

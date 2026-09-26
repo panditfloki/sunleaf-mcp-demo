@@ -38,6 +38,9 @@ export function stem(word: string): string {
   } else if (w.length > 4 && w.endsWith("ed")) {
     w = undouble(w.slice(0, -2));
   }
+  if (w.length > 5 && w.endsWith("ery")) {
+    w = w.slice(0, -1);
+  }
   if (w.length > 4 && w.endsWith("e")) {
     w = w.slice(0, -1);
   }

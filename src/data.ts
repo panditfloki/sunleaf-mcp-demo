@@ -55,6 +55,11 @@ export function resolveDataDir(env: NodeJS.ProcessEnv = process.env): string {
   return fromEnv ? resolve(PACKAGE_ROOT, fromEnv) : join(PACKAGE_ROOT, "data");
 }
 
+/** One rule for ids, used by validation and lookup alike: ignore case and surrounding spaces. */
+export function normalizeId(id: string): string {
+  return id.trim().toLowerCase();
+}
+
 function readRecords<T extends { id: string }>(file: string, schema: z.ZodType<T>): T[] {
   let raw: unknown;
   try {
@@ -72,8 +77,12 @@ function readRecords<T extends { id: string }>(file: string, schema: z.ZodType<T
   }
   const seen = new Set<string>();
   for (const record of parsed.data) {
-    if (seen.has(record.id)) throw new Error(`${file} has a duplicate id "${record.id}".`);
-    seen.add(record.id);
+    const key = normalizeId(record.id);
+    if (!key) throw new Error(`${file} has a blank id.`);
+    if (seen.has(key)) {
+      throw new Error(`${file} has a duplicate id "${record.id}". Ids are compared without case or surrounding spaces.`);
+    }
+    seen.add(key);
   }
   return parsed.data;
 }

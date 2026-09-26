@@ -4,7 +4,7 @@
 
 ## Who can apply
 
-Cafes, restaurants, hotels and retailers can apply for a wholesale account. We review applications within 5 working days.
+Cafes, restaurants, hotels and retailers in India can apply for a wholesale account. Wholesale orders ship inside India only. We review applications within 5 working days.
 
 ## Minimum orders
 
@@ -17,7 +17,3 @@ Wholesale prices are 30% below retail for orders up to 20 kg and 40% below retai
 ## Custom blends
 
 Custom blends are available to partners ordering 20 kg or more per blend. Development takes about 4 weeks, including two rounds of samples.
-
-## Delivery
-
-Wholesale orders ship inside India only.

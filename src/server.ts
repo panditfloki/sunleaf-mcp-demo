@@ -2,6 +2,7 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import {
   loadData,
+  normalizeId,
   POLICY_LABELS,
   POLICY_NAMES,
   ProductSchema,
@@ -10,18 +11,21 @@ import {
   type Product,
   type SunleafData,
 } from "./data.js";
-import { faqIndex, passageIndex, productIndex } from "./indexes.js";
+import { faqIndex, passageIndex, policyPassages, productIndex, type Passage } from "./indexes.js";
 
 export const SERVER_NAME = "sunleaf-mcp";
 export const SERVER_VERSION = "0.1.0";
 
-/** What answer_sources says when nothing in the data answers the question. */
+/** What answer_sources says when nothing in the data matches the question at all. */
 export const NOT_COVERED = "No matching information in the Sunleaf data.";
 
 /**
- * answer_sources only returns a passage that covers at least this share of the question's
- * words, weighted by rarity. This is what makes "Do you ship to Canada?" come back as not
- * covered, instead of returning the shipping policy and inviting a guess.
+ * answer_sources grades each passage by the share of the question's words it contains,
+ * weighted by rarity. At or above this share a passage is returned as an answer. Below it, the
+ * closest passages still come back, marked as partial, because some questions are answered by
+ * exclusion: "Do you ship to Canada?" is answered by the list of countries the shop ships to,
+ * and word overlap cannot tell that apart from an unrelated passage. The label keeps the model
+ * honest. A threshold on its own is no guarantee against guessing.
  */
 export const MIN_ANSWER_COVERAGE = 0.5;
 
@@ -32,7 +36,8 @@ const INSTRUCTIONS = [
   "Sunleaf Tea Co. is a fictional demo shop. Answer customer questions only from these tools and resources.",
   "Use search_products and get_product for the catalog, and answer_sources, search_faqs or get_policy for FAQs and policies.",
   "Cite the ids you used, for example [SL-HRB-001], [faq-006] or [policy:returns#opened-tins].",
-  "If a tool says the data does not cover a question, tell the customer so instead of guessing.",
+  "A policy that lists what the shop does, such as where it ships, also answers what it does not do.",
+  "If nothing returned answers the question, tell the customer the data does not cover it instead of guessing.",
 ].join(" ");
 
 const ProductSummarySchema = ProductSchema.pick({
@@ -45,7 +50,14 @@ const ProductSummarySchema = ProductSchema.pick({
   in_stock: true,
 });
 
-const PassageSchema = z.object({ id: z.string(), title: z.string(), text: z.string() });
+const SourceSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  text: z.string(),
+  /** answer: covers the question. partial: the closest match, may not answer it. scope: the rules of a policy returned above. */
+  role: z.enum(["answer", "partial", "scope"]),
+});
+type Source = z.infer<typeof SourceSchema>;
 
 function text(value: string) {
   return { type: "text" as const, text: value };
@@ -64,6 +76,14 @@ function productLine(product: Product): string {
   return `${product.id} | ${product.name} (${product.category}) | ${formatPrice(product)} | ${product.sizes.join(", ")} | ${stock}`;
 }
 
+function toSource(passage: Passage, role: Source["role"]): Source {
+  return { id: passage.id, title: passage.title, text: passage.text, role };
+}
+
+function sourceBlock(source: Source): string {
+  return `[${source.id}] ${source.title}\n${source.text}`;
+}
+
 export interface CreateServerOptions {
   /** Data that is already loaded. Wins over dataDir. */
   data?: SunleafData;
@@ -78,6 +98,12 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
   const passages = passageIndex(data);
   const categories = [...new Set(data.products.map((product) => product.category))].sort();
   const policies: PolicyName[] = POLICY_NAMES.filter((name) => data.policies[name] !== undefined);
+
+  const scopes = new Map<PolicyName, Passage>();
+  for (const name of policies) {
+    const scope = policyPassages(name, data.policies[name] ?? "").find((passage) => passage.scope);
+    if (scope) scopes.set(name, scope);
+  }
 
   const server = new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION, title: "Sunleaf Tea Co. (demo)" },
@@ -95,7 +121,7 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
         query: z.string().min(1).describe('Keywords, for example "caffeine-free" or "green tea"'),
         category: z.string().optional().describe(`Optional category filter: ${categories.join(", ")}`),
         in_stock_only: z.boolean().optional().describe("Return only products that are in stock"),
-        max_results: z.number().int().min(1).max(10).optional().describe("How many results to return, 1 to 10 (default 5)"),
+        max_results: z.number().int().min(1).max(10).optional().describe("How many results to return, 1 to 10 (default 8)"),
       }),
       outputSchema: z.object({ results: z.array(ProductSummarySchema) }),
       annotations: READ_ONLY,
@@ -106,7 +132,7 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
         return toolError(`Unknown category "${category}". Valid categories: ${categories.join(", ")}.`);
       }
       const hits = products.search(query, {
-        limit: max_results ?? 5,
+        limit: max_results ?? 8,
         filter: (product) => (wanted === undefined || product.category === wanted) && (!in_stock_only || product.in_stock),
       });
       const results = hits.map((hit) => ProductSummarySchema.parse(hit.item));
@@ -128,7 +154,8 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
       annotations: READ_ONLY,
     },
     async ({ id }) => {
-      const product = data.products.find((p) => p.id.toLowerCase() === id.trim().toLowerCase());
+      const wanted = normalizeId(id);
+      const product = data.products.find((p) => normalizeId(p.id) === wanted);
       if (!product) return toolError(`No product with id "${id}". Use search_products to find valid ids.`);
       const details = [
         `${product.name} [${product.id}]`,
@@ -182,27 +209,48 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
     {
       title: "Find answer sources",
       description:
-        "Search the FAQs and policies together for a customer question. Returns the best passages, each with an id to cite. " +
-        "If nothing in the data covers the question, it says so: tell the customer that instead of guessing.",
+        "Search the FAQs and policies together for a customer question. Returns passages with ids to cite, marked as answers " +
+        "or as partial matches, plus the scope rules of any policy they come from. A partial match can still answer by " +
+        "exclusion: a list of the countries the shop ships to answers whether it ships somewhere else. If nothing matches, " +
+        "it says so: tell the customer instead of guessing.",
       inputSchema: z.object({ question: z.string().min(1).describe("The customer's question, in their own words") }),
-      outputSchema: z.object({ sources: z.array(PassageSchema) }),
+      outputSchema: z.object({ match: z.enum(["full", "partial", "none"]), sources: z.array(SourceSchema) }),
       annotations: READ_ONLY,
     },
     async ({ question }) => {
-      const hits = passages.search(question, { limit: 3, minCoverage: MIN_ANSWER_COVERAGE });
+      const hits = passages.search(question, { limit: 5 });
       if (hits.length === 0) {
         return {
           content: [text(`${NOT_COVERED} Tell the customer this is not covered instead of guessing.`)],
-          structuredContent: { sources: [] },
+          structuredContent: { match: "none" as const, sources: [] },
         };
       }
-      const sources = hits.map((hit) => hit.item);
+
+      const answers = hits.filter((hit) => hit.coverage >= MIN_ANSWER_COVERAGE).slice(0, 3);
+      const match = answers.length > 0 ? ("full" as const) : ("partial" as const);
+      const chosen = answers.length > 0 ? answers : hits;
+      const sources = chosen.map((hit) => toSource(hit.item, match === "full" ? "answer" : "partial"));
+
+      // A policy's first section states its scope, such as where the shop ships. Keep it beside any
+      // other section of that policy, so an answer about shipping costs cannot lose the destinations rule.
+      for (const hit of chosen) {
+        const scope = hit.item.policy === undefined ? undefined : scopes.get(hit.item.policy);
+        if (scope && !sources.some((source) => source.id === scope.id)) sources.push(toSource(scope, "scope"));
+      }
+
+      const found = sources.filter((source) => source.role !== "scope");
+      const rules = sources.filter((source) => source.role === "scope");
       const body = [
-        `Sources for: "${question}"`,
-        ...sources.map((source) => `[${source.id}] ${source.title}\n${source.text}`),
-        "Answer only from these passages and cite their ids. If they do not answer the question, say the Sunleaf data does not cover it.",
+        match === "full"
+          ? `Sources for: "${question}"`
+          : `No passage matches the whole question: "${question}". Closest partial matches:`,
+        ...found.map(sourceBlock),
+        ...(rules.length > 0 ? ["Policy scope, to read together with the passages above:", ...rules.map(sourceBlock)] : []),
+        match === "full"
+          ? "Answer only from these passages and cite their ids. If they do not answer the question, say the Sunleaf data does not cover it."
+          : "Use a passage only if it actually answers the question. A list of what the shop does, such as the countries it ships to, also answers whether it does something else. If nothing here answers the question, tell the customer the Sunleaf data does not cover it. Cite the ids you use.",
       ].join("\n\n");
-      return { content: [text(body)], structuredContent: { sources } };
+      return { content: [text(body)], structuredContent: { match, sources } };
     },
   );
 
@@ -264,6 +312,7 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
               "You are the customer assistant for Sunleaf Tea Co., a fictional demo tea shop.",
               "Answer the customer message below using only the Sunleaf tools and resources: search_products, get_product, search_faqs, get_policy and answer_sources.",
               "Cite the ids of the sources you used in square brackets, for example [faq-006].",
+              "A policy that lists what the shop does, such as where it ships, also answers what it does not do.",
               "If the data does not cover something, say so plainly instead of guessing.",
               "",
               `Customer message: ${customer_message}`,

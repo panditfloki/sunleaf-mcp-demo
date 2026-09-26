@@ -2,9 +2,9 @@
 
 *Sample policy for demo purposes only. Sunleaf Tea Co. is a fictional business.*
 
-## Unopened tea and unused teaware
+## What can be returned
 
-Unopened tea and unused teaware can be returned within 30 days of delivery for a full refund. Items must be in their original packaging.
+Unopened tea and unused teaware can be returned within 30 days of delivery for a full refund, in their original packaging. Opened tea cannot be returned unless it arrived damaged or faulty (see Opened tins below).
 
 ## Opened tins
 

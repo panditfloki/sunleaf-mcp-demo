@@ -7,6 +7,10 @@ export interface Passage {
   id: string;
   title: string;
   text: string;
+  /** The policy a section belongs to. Not set for FAQs. */
+  policy?: PolicyName;
+  /** True for a policy's first section, which states its scope, such as where the shop ships. */
+  scope?: boolean;
 }
 
 export function productIndex(products: Product[]): SearchIndex<Product> {
@@ -46,6 +50,9 @@ function slug(text: string): string {
  * Split a policy into one passage per "## " section, so a citation points at the part that
  * answers the question rather than at the whole document. The title line and the
  * sample-data note before the first section are not passages.
+ *
+ * By convention the first passage states the policy's scope (where the shop ships, who can
+ * apply). It is marked, so answer_sources can keep it beside any other section it returns.
  */
 export function policyPassages(name: PolicyName, markdown: string): Passage[] {
   const [intro = "", ...sections] = markdown.split(/^## /m);
@@ -56,15 +63,23 @@ export function policyPassages(name: PolicyName, markdown: string): Passage[] {
     .filter((line) => !line.startsWith("# ") && !/sample policy/i.test(line))
     .join("\n")
     .trim();
-  if (introText) passages.push({ id: `policy:${name}`, title: POLICY_LABELS[name], text: introText });
+  if (introText) passages.push({ id: `policy:${name}`, title: POLICY_LABELS[name], text: introText, policy: name });
 
   for (const section of sections) {
     const newline = section.indexOf("\n");
     const heading = (newline === -1 ? section : section.slice(0, newline)).trim();
     const body = newline === -1 ? "" : section.slice(newline + 1).trim();
     if (!heading || !body) continue;
-    passages.push({ id: `policy:${name}#${slug(heading)}`, title: `${POLICY_LABELS[name]}: ${heading}`, text: body });
+    passages.push({
+      id: `policy:${name}#${slug(heading)}`,
+      title: `${POLICY_LABELS[name]}: ${heading}`,
+      text: body,
+      policy: name,
+    });
   }
+
+  const first = passages[0];
+  if (first) first.scope = true;
   return passages;
 }
 

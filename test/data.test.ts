@@ -84,4 +84,10 @@ describe("data folder", () => {
     const dir = makeDataDir({ "products.json": JSON.stringify([product, product]), "faqs.json": "[]" });
     expect(() => loadData(dir)).toThrow(/duplicate id "X-1"/);
   });
+
+  it("treats ids that differ only in case or spaces as duplicates", () => {
+    const other = { ...product, id: " x-1 ", name: "Other Tea", price_usd: 10 };
+    const dir = makeDataDir({ "products.json": JSON.stringify([product, other]), "faqs.json": "[]" });
+    expect(() => loadData(dir)).toThrow(/duplicate id " x-1 "/);
+  });
 });

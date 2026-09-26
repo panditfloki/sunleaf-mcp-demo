@@ -100,17 +100,68 @@ describe("sunleaf MCP server", () => {
     expect(textOf(result)).toContain("Valid categories");
   });
 
-  it("cites sources for a covered question and does not guess otherwise", async () => {
+  it("finds a product by id regardless of case or surrounding spaces", async () => {
     const client = await connect();
-    const covered = await client.callTool({
-      name: "answer_sources",
-      arguments: { question: "What is your return policy for opened tins?" },
-    });
-    expect(textOf(covered)).toContain("[policy:returns#opened-tins]");
+    const result = await client.callTool({ name: "get_product", arguments: { id: "  sl-hrb-003 " } });
+    expect(result.isError).toBeFalsy();
+    expect(textOf(result)).toContain("Peppermint Leaf [SL-HRB-003]");
+  });
 
-    const notCovered = await client.callTool({ name: "answer_sources", arguments: { question: "Do you ship to Canada?" } });
-    expect(textOf(notCovered)).toContain(NOT_COVERED);
-    expect(notCovered.structuredContent).toEqual({ sources: [] });
+  it("returns every caffeine-free tea under $15 when given the whole question", async () => {
+    const client = await connect();
+    const result = await client.callTool({
+      name: "search_products",
+      arguments: { query: "Do you have a caffeine-free tea under $15?" },
+    });
+    const { results } = result.structuredContent as { results: { id: string }[] };
+    expect(results.map((product) => product.id)).toEqual(
+      expect.arrayContaining(["SL-HRB-001", "SL-HRB-002", "SL-HRB-003", "SL-HRB-004"]),
+    );
+  });
+
+  describe("answer_sources", () => {
+    async function ask(question: string) {
+      const client = await connect();
+      const result = await client.callTool({ name: "answer_sources", arguments: { question } });
+      const structured = result.structuredContent as { match: string; sources: { id: string; role: string }[] };
+      return { text: textOf(result), match: structured.match, ids: structured.sources.map((source) => source.id) };
+    }
+
+    it("returns cited answers when the data covers the question", async () => {
+      const { match, ids } = await ask("What is your return policy for opened tins?");
+      expect(match).toBe("full");
+      expect(ids).toContain("policy:returns#opened-tins");
+    });
+
+    it("answers Canada from the shipping list instead of calling it not covered", async () => {
+      const { match, ids, text } = await ask("Do you ship to Canada?");
+      expect(match).toBe("partial");
+      expect(ids).toContain("policy:shipping#where-we-ship");
+      expect(text).not.toContain(NOT_COVERED);
+    });
+
+    it("still finds the shipping list when the question is paraphrased", async () => {
+      const { ids } = await ask("Do you deliver to Canada?");
+      expect(ids).toContain("policy:shipping#where-we-ship");
+    });
+
+    it("keeps the destination rule beside shipping costs", async () => {
+      const { ids } = await ask("What are the shipping costs for international orders to Canada?");
+      expect(ids).toContain("policy:shipping#shipping-costs");
+      expect(ids).toContain("policy:shipping#where-we-ship");
+    });
+
+    it("never presents a fact the data does not hold as a full answer", async () => {
+      const { match } = await ask("What is your FSSAI licence number?");
+      expect(match).not.toBe("full");
+    });
+
+    it("says not covered when nothing in the data matches", async () => {
+      const { match, ids, text } = await ask("Can I pay with Bitcoin?");
+      expect(match).toBe("none");
+      expect(ids).toEqual([]);
+      expect(text).toContain(NOT_COVERED);
+    });
   });
 
   it("serves the catalog, FAQs and policies as resources", async () => {
