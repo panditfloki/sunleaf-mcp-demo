@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sunleaf": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/sunleaf-mcp-demo/build/index.js"]
+    }
+  }
+}

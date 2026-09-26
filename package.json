@@ -1,0 +1,57 @@
+{
+  "name": "sunleaf-mcp-demo",
+  "version": "0.1.0",
+  "description": "Demo MCP server that connects a fictional tea shop's catalog, FAQs and policies to AI assistants such as Claude Desktop and Cursor. Read-only, cited answers, no API keys.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "sunleaf-mcp": "./build/index.js"
+  },
+  "files": [
+    "build",
+    "data",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && node scripts/postbuild.mjs",
+    "start": "node build/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "cursor",
+    "ai-agents",
+    "typescript"
+  ],
+  "author": {
+    "name": "Pandit Floki",
+    "email": "pandit@dydxfx.com",
+    "url": "https://dydxfx.com"
+  },
+  "license": "MIT",
+  "homepage": "https://dydxfx.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panditfloki/sunleaf-mcp-demo.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.6.2"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "@modelcontextprotocol/inspector": "2.6.0",
+    "@types/node": "22.20.2",
+    "tsx": "4.23.13",
+    "typescript": "7.0.2",
+    "vitest": "5.0.0"
+  }
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "faq-001",
+    "question": "Where do you ship?",
+    "answer": "We ship to India, the United States, the United Kingdom and countries in the European Union. We do not ship to other countries at the moment.",
+    "tags": ["shipping", "countries", "international"]
+  },
+  {
+    "id": "faq-002",
+    "question": "How long does delivery take?",
+    "answer": "Orders inside India usually arrive in 3 to 6 working days. International orders usually take 7 to 14 working days after dispatch.",
+    "tags": ["shipping", "delivery", "timing"]
+  },
+  {
+    "id": "faq-003",
+    "question": "Is shipping free?",
+    "answer": "Shipping is free on orders above ₹999 inside India. International shipping is charged at checkout based on weight and destination.",
+    "tags": ["shipping", "free shipping", "cost"]
+  },
+  {
+    "id": "faq-004",
+    "question": "How can I track my order?",
+    "answer": "You get a tracking link by email as soon as your order is dispatched. Orders are usually dispatched within 2 working days.",
+    "tags": ["shipping", "tracking", "order status"]
+  },
+  {
+    "id": "faq-005",
+    "question": "Do you offer express delivery?",
+    "answer": "Express delivery is available to major Indian cities for an extra ₹150. It is not available for international orders.",
+    "tags": ["shipping", "express", "delivery"]
+  },
+  {
+    "id": "faq-006",
+    "question": "Can I return an opened tin of tea?",
+    "answer": "Opened tea cannot be returned for food safety reasons, unless the tin arrived damaged or the tea is faulty. In that case, tell us within 7 days of delivery with a photo and we will replace it or refund you.",
+    "tags": ["returns", "opened", "tin", "refund"]
+  },
+  {
+    "id": "faq-007",
+    "question": "How do I return an unopened product?",
+    "answer": "Unopened tea and unused teaware can be returned within 30 days of delivery. Start a return from your order page and send the item back in its original packaging.",
+    "tags": ["returns", "unopened", "refund"]
+  },
+  {
+    "id": "faq-008",
+    "question": "When will I get my refund?",
+    "answer": "Refunds go back to your original payment method within 5 to 7 working days after we receive and check the returned item.",
+    "tags": ["returns", "refund", "payment"]
+  },
+  {
+    "id": "faq-009",
+    "question": "My teapot arrived broken. What should I do?",
+    "answer": "Send us a photo within 7 days of delivery and we will send a replacement at no cost. You do not need to send the broken item back.",
+    "tags": ["returns", "damaged", "teaware", "replacement"]
+  },
+  {
+    "id": "faq-010",
+    "question": "How should I brew Darjeeling First Flush?",
+    "answer": "Use 2 g of leaves per 200 ml of water at 85 to 90°C and steep for 3 minutes. Water that is too hot can make first flush tea taste bitter.",
+    "tags": ["brewing", "darjeeling", "first flush", "black tea"]
+  },
+  {
+    "id": "faq-011",
+    "question": "How do I brew green tea without bitterness?",
+    "answer": "Use water at 75 to 80°C, not boiling, and steep for 1 to 2 minutes. Longer steeping or hotter water brings out bitterness.",
+    "tags": ["brewing", "green tea", "temperature", "bitterness"]
+  },
+  {
+    "id": "faq-012",
+    "question": "How do I make masala chai on the stove?",
+    "answer": "Simmer 2 teaspoons of Masala Chai Blend in 150 ml of water for 2 minutes. Add 150 ml of milk and sugar to taste, bring it back to a simmer, then strain.",
+    "tags": ["brewing", "chai", "masala", "milk tea"]
+  },
+  {
+    "id": "faq-013",
+    "question": "Can I steep oolong more than once?",
+    "answer": "Yes. Mountain Oolong gives 3 to 4 good infusions. Add about 30 seconds to each new steep.",
+    "tags": ["brewing", "oolong", "infusions", "re-steeping"]
+  },
+  {
+    "id": "faq-014",
+    "question": "How do I make iced tea?",
+    "answer": "Brew the tea at double strength, then pour it over a glass full of ice. Nilgiri Frost and Hibiscus Rose Cooler work especially well.",
+    "tags": ["brewing", "iced tea", "cold"]
+  },
+  {
+    "id": "faq-015",
+    "question": "How much tea should I use per cup?",
+    "answer": "Start with 2 to 3 g of loose tea, about 1 teaspoon, per 200 ml cup, then adjust to taste.",
+    "tags": ["brewing", "quantity", "loose leaf"]
+  },
+  {
+    "id": "faq-016",
+    "question": "How should I store my tea?",
+    "answer": "Keep tea in an airtight tin away from light, heat, moisture and strong smells. Do not keep it in the fridge.",
+    "tags": ["storage", "freshness", "airtight"]
+  },
+  {
+    "id": "faq-017",
+    "question": "How long does loose leaf tea stay fresh?",
+    "answer": "Most of our teas taste best within 12 months of opening. Green and white teas are best within 6 months.",
+    "tags": ["storage", "freshness", "shelf life"]
+  },
+  {
+    "id": "faq-018",
+    "question": "Is there a best-before date on the tins?",
+    "answer": "Yes. Every tin shows a packed-on date and a best-before date on the base.",
+    "tags": ["storage", "best before", "date"]
+  },
+  {
+    "id": "faq-019",
+    "question": "Do you sell wholesale to cafes?",
+    "answer": "Yes. Cafes, restaurants and retailers can apply for a wholesale account. See the wholesale policy for minimum orders and pricing.",
+    "tags": ["wholesale", "cafe", "business"]
+  },
+  {
+    "id": "faq-020",
+    "question": "What is the minimum wholesale order?",
+    "answer": "The first wholesale order must be at least 5 kg of tea across any blends. Repeat orders have a 2 kg minimum.",
+    "tags": ["wholesale", "minimum order", "bulk"]
+  },
+  {
+    "id": "faq-021",
+    "question": "Can you create a custom blend for my business?",
+    "answer": "Custom blends are available to wholesale partners ordering 20 kg or more per blend. Development takes about 4 weeks.",
+    "tags": ["wholesale", "custom blend", "business"]
+  },
+  {
+    "id": "faq-022",
+    "question": "Do you sell gift cards?",
+    "answer": "Yes. Digital gift cards from ₹500 to ₹10,000 are sent by email and can be used on any order.",
+    "tags": ["gift cards", "gift", "digital"]
+  },
+  {
+    "id": "faq-023",
+    "question": "Do gift cards expire?",
+    "answer": "Gift cards are valid for 12 months from the date of purchase and can be used across several orders.",
+    "tags": ["gift cards", "expiry", "validity"]
+  },
+  {
+    "id": "faq-024",
+    "question": "Do your teas contain common allergens?",
+    "answer": "Our teas contain no added nuts, gluten or dairy. Kashmiri Kahwa is packed in a facility that also handles almonds.",
+    "tags": ["allergens", "nuts", "gluten", "dairy"]
+  },
+  {
+    "id": "faq-025",
+    "question": "Which of your teas are caffeine-free?",
+    "answer": "All our herbal infusions are caffeine-free: Chamomile Calm, Rooibos Vanilla, Peppermint Leaf, Tulsi Ginger Glow and Hibiscus Rose Cooler.",
+    "tags": ["caffeine-free", "herbal", "caffeine"]
+  }
+]

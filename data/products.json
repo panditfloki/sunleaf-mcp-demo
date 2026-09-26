@@ -1,0 +1,222 @@
+[
+  {
+    "id": "SL-GRN-001",
+    "name": "Sencha Morning Mist",
+    "category": "green tea",
+    "price_inr": 520,
+    "price_usd": 9.5,
+    "sizes": ["50 g", "100 g"],
+    "in_stock": true,
+    "tags": ["green tea", "grassy", "morning", "steamed"],
+    "short_description": "A bright, grassy steamed green tea for a clean start to the day."
+  },
+  {
+    "id": "SL-GRN-002",
+    "name": "Jasmine Pearl Green",
+    "category": "green tea",
+    "price_inr": 780,
+    "price_usd": 14,
+    "sizes": ["50 g"],
+    "in_stock": true,
+    "tags": ["green tea", "jasmine", "floral", "hand-rolled"],
+    "short_description": "Hand-rolled green tea pearls scented with fresh jasmine blossoms."
+  },
+  {
+    "id": "SL-GRN-003",
+    "name": "Himalayan Green Leaf",
+    "category": "green tea",
+    "price_inr": 640,
+    "price_usd": 11.5,
+    "sizes": ["50 g", "100 g"],
+    "in_stock": false,
+    "tags": ["green tea", "himalayan", "light", "vegetal"],
+    "short_description": "A light, gently vegetal green tea from high-altitude gardens."
+  },
+  {
+    "id": "SL-GRN-004",
+    "name": "Kashmiri Kahwa",
+    "category": "green tea",
+    "price_inr": 990,
+    "price_usd": 18.5,
+    "sizes": ["50 g"],
+    "in_stock": true,
+    "tags": ["green tea", "kahwa", "saffron", "spiced"],
+    "short_description": "Green tea with saffron, cardamom and cinnamon, traditionally served with sliced almonds."
+  },
+  {
+    "id": "SL-BLK-001",
+    "name": "Darjeeling First Flush",
+    "category": "black tea",
+    "price_inr": 950,
+    "price_usd": 18,
+    "sizes": ["50 g", "100 g"],
+    "in_stock": true,
+    "tags": ["darjeeling", "first flush", "black tea", "muscatel", "spring"],
+    "short_description": "Delicate spring-picked Darjeeling with a floral, muscatel note. Brew it a little cooler than other black teas."
+  },
+  {
+    "id": "SL-BLK-002",
+    "name": "Assam Breakfast Strong",
+    "category": "black tea",
+    "price_inr": 420,
+    "price_usd": 8,
+    "sizes": ["100 g", "250 g"],
+    "in_stock": true,
+    "tags": ["assam", "breakfast", "black tea", "malty", "milk tea"],
+    "short_description": "A malty, full-bodied Assam that stands up to milk and sugar."
+  },
+  {
+    "id": "SL-BLK-003",
+    "name": "Masala Chai Blend",
+    "category": "black tea",
+    "price_inr": 480,
+    "price_usd": 9,
+    "sizes": ["100 g", "250 g"],
+    "in_stock": true,
+    "tags": ["chai", "masala", "spiced", "black tea", "milk tea"],
+    "short_description": "Assam black tea with cardamom, ginger, cinnamon and clove, made for stovetop chai."
+  },
+  {
+    "id": "SL-BLK-004",
+    "name": "Nilgiri Frost",
+    "category": "black tea",
+    "price_inr": 560,
+    "price_usd": 10.5,
+    "sizes": ["100 g"],
+    "in_stock": true,
+    "tags": ["nilgiri", "black tea", "brisk", "iced tea"],
+    "short_description": "A brisk, fragrant black tea that makes excellent iced tea."
+  },
+  {
+    "id": "SL-OOL-001",
+    "name": "Mountain Oolong",
+    "category": "oolong tea",
+    "price_inr": 890,
+    "price_usd": 16.5,
+    "sizes": ["50 g"],
+    "in_stock": true,
+    "tags": ["oolong", "roasted", "honey", "multiple infusions"],
+    "short_description": "A lightly roasted oolong with honeyed notes that holds up to several infusions."
+  },
+  {
+    "id": "SL-WHT-001",
+    "name": "Silver Needle White",
+    "category": "white tea",
+    "price_inr": 1450,
+    "price_usd": 26,
+    "sizes": ["25 g", "50 g"],
+    "in_stock": false,
+    "tags": ["white tea", "silver needle", "delicate", "buds"],
+    "short_description": "Downy white tea buds with a soft, sweet, hay-like flavour."
+  },
+  {
+    "id": "SL-HRB-001",
+    "name": "Chamomile Calm",
+    "category": "herbal",
+    "price_inr": 380,
+    "price_usd": 7.5,
+    "sizes": ["50 g"],
+    "in_stock": true,
+    "tags": ["herbal", "caffeine-free", "chamomile", "bedtime", "calming"],
+    "short_description": "Whole chamomile flowers for a gentle, honey-scented evening cup. Naturally caffeine-free."
+  },
+  {
+    "id": "SL-HRB-002",
+    "name": "Rooibos Vanilla",
+    "category": "herbal",
+    "price_inr": 450,
+    "price_usd": 9.5,
+    "sizes": ["100 g"],
+    "in_stock": true,
+    "tags": ["herbal", "caffeine-free", "rooibos", "vanilla", "sweet"],
+    "short_description": "Red rooibos with vanilla pieces. Smooth, naturally sweet and caffeine-free."
+  },
+  {
+    "id": "SL-HRB-003",
+    "name": "Peppermint Leaf",
+    "category": "herbal",
+    "price_inr": 320,
+    "price_usd": 6.5,
+    "sizes": ["50 g"],
+    "in_stock": true,
+    "tags": ["herbal", "caffeine-free", "peppermint", "after dinner", "cooling"],
+    "short_description": "Cooling whole peppermint leaves, a classic after-dinner infusion. Naturally caffeine-free."
+  },
+  {
+    "id": "SL-HRB-004",
+    "name": "Tulsi Ginger Glow",
+    "category": "herbal",
+    "price_inr": 420,
+    "price_usd": 8.5,
+    "sizes": ["50 g"],
+    "in_stock": true,
+    "tags": ["herbal", "caffeine-free", "tulsi", "ginger", "warming"],
+    "short_description": "Holy basil and ginger for a warming, peppery cup. Caffeine-free."
+  },
+  {
+    "id": "SL-HRB-005",
+    "name": "Hibiscus Rose Cooler",
+    "category": "herbal",
+    "price_inr": 880,
+    "price_usd": 16,
+    "sizes": ["100 g"],
+    "in_stock": true,
+    "tags": ["herbal", "caffeine-free", "hibiscus", "rose", "iced tea"],
+    "short_description": "Tart hibiscus with rose petals, lovely hot or iced. Caffeine-free."
+  },
+  {
+    "id": "SL-WAR-001",
+    "name": "Glass Teapot with Infuser",
+    "category": "teaware",
+    "price_inr": 1650,
+    "price_usd": 28,
+    "sizes": ["600 ml"],
+    "in_stock": true,
+    "tags": ["teaware", "teapot", "glass", "infuser", "loose leaf"],
+    "short_description": "A heat-resistant glass teapot with a removable stainless steel infuser."
+  },
+  {
+    "id": "SL-WAR-002",
+    "name": "Cast Iron Kettle",
+    "category": "teaware",
+    "price_inr": 3200,
+    "price_usd": 55,
+    "sizes": ["800 ml"],
+    "in_stock": false,
+    "tags": ["teaware", "kettle", "cast iron", "stovetop"],
+    "short_description": "An enamel-lined cast iron kettle for the stovetop. Hand wash only."
+  },
+  {
+    "id": "SL-WAR-003",
+    "name": "Stainless Steel Tea Infuser",
+    "category": "teaware",
+    "price_inr": 290,
+    "price_usd": 5.5,
+    "sizes": ["one size"],
+    "in_stock": true,
+    "tags": ["teaware", "infuser", "loose leaf", "travel"],
+    "short_description": "A fine-mesh infuser that fits most mugs and travel bottles."
+  },
+  {
+    "id": "SL-GFT-001",
+    "name": "Sunleaf Discovery Box",
+    "category": "gift box",
+    "price_inr": 1800,
+    "price_usd": 32,
+    "sizes": ["6 samplers of 20 g"],
+    "in_stock": true,
+    "tags": ["gift box", "sampler", "gift", "assorted"],
+    "short_description": "Six 20 g samplers: Sencha, Darjeeling First Flush, Masala Chai, Mountain Oolong, Chamomile and Rooibos."
+  },
+  {
+    "id": "SL-GFT-002",
+    "name": "Calm Evenings Gift Set",
+    "category": "gift box",
+    "price_inr": 1350,
+    "price_usd": 24,
+    "sizes": ["3 tins"],
+    "in_stock": true,
+    "tags": ["gift box", "gift", "caffeine-free", "herbal", "bedtime"],
+    "short_description": "Three caffeine-free herbal tins (Chamomile Calm, Rooibos Vanilla, Peppermint Leaf) in a keepsake box."
+  }
+]
