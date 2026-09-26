@@ -34,6 +34,8 @@ export const FaqSchema = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),
   tags: z.array(z.string()),
+  /** The policy that governs this FAQ. answer_sources returns that policy's scope beside the FAQ. */
+  policy: z.enum(POLICY_NAMES).optional(),
 });
 export type Faq = z.infer<typeof FaqSchema>;
 
@@ -95,6 +97,14 @@ export function loadData(dataDir: string = resolveDataDir()): SunleafData {
   for (const name of POLICY_NAMES) {
     const file = join(dataDir, "policies", `${name}.md`);
     if (existsSync(file)) policies[name] = readFileSync(file, "utf8");
+  }
+  // A link to a missing policy would drop that policy's rules without a word, so it is an error.
+  for (const faq of faqs) {
+    if (faq.policy !== undefined && policies[faq.policy] === undefined) {
+      throw new Error(
+        `${join(dataDir, "faqs.json")}: FAQ "${faq.id}" names the ${faq.policy} policy, but policies/${faq.policy}.md is missing.`,
+      );
+    }
   }
   return { dataDir, products, faqs, policies };
 }

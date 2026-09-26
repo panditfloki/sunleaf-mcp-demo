@@ -51,6 +51,18 @@ describe("bundled data", () => {
     expect(emails.length).toBeGreaterThan(0);
     expect(emails.every((email) => email === "support@example.com")).toBe(true);
   });
+
+  it("links every FAQ tagged with a policy's name to that policy, and no other FAQ", () => {
+    const data = loadData();
+    const policyNames: readonly string[] = POLICY_NAMES;
+    for (const faq of data.faqs) {
+      const tagged = faq.tags.filter((tag) => policyNames.includes(tag));
+      expect(tagged.length, faq.id).toBeLessThanOrEqual(1);
+      expect(faq.policy, faq.id).toBe(tagged[0]);
+    }
+    expect(data.faqs.some((faq) => faq.policy === "wholesale")).toBe(true);
+    expect(data.faqs.some((faq) => faq.policy === "shipping")).toBe(true);
+  });
 });
 
 describe("data folder", () => {
@@ -83,6 +95,23 @@ describe("data folder", () => {
   it("rejects duplicate ids", () => {
     const dir = makeDataDir({ "products.json": JSON.stringify([product, product]), "faqs.json": "[]" });
     expect(() => loadData(dir)).toThrow(/duplicate id "X-1"/);
+  });
+
+  it("rejects an FAQ linked to a policy the folder does not have", () => {
+    const dir = makeDataDir({
+      "products.json": JSON.stringify([product]),
+      "faqs.json": JSON.stringify([{ ...faq, policy: "wholesale" }]),
+      "policies/shipping.md": "# Shipping\n\n## Where\n\nEverywhere.",
+    });
+    expect(() => loadData(dir)).toThrow(/FAQ "faq-x" names the wholesale policy, but policies\/wholesale\.md is missing/);
+  });
+
+  it("rejects an FAQ linked to a policy name that does not exist", () => {
+    const dir = makeDataDir({
+      "products.json": JSON.stringify([product]),
+      "faqs.json": JSON.stringify([{ ...faq, policy: "refunds" }]),
+    });
+    expect(() => loadData(dir)).toThrow(/faqs\.json does not match the expected format/);
   });
 
   it("treats ids that differ only in case or spaces as duplicates", () => {

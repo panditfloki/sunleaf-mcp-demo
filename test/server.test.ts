@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { Client, InMemoryTransport } from "@modelcontextprotocol/client";
 import { afterEach, describe, expect, it } from "vitest";
+import { loadData } from "../src/data.js";
+import { policyPassages } from "../src/indexes.js";
 import { createServer, NOT_COVERED, SERVER_VERSION } from "../src/server.js";
 
 let disconnect: (() => Promise<void>) | undefined;
@@ -120,11 +122,24 @@ describe("sunleaf MCP server", () => {
   });
 
   describe("answer_sources", () => {
-    async function ask(question: string) {
-      const client = await connect();
+    async function askWith(client: Client, question: string) {
       const result = await client.callTool({ name: "answer_sources", arguments: { question } });
       const structured = result.structuredContent as { match: string; sources: { id: string; role: string }[] };
-      return { text: textOf(result), match: structured.match, ids: structured.sources.map((source) => source.id) };
+      return {
+        text: textOf(result),
+        match: structured.match,
+        sources: structured.sources,
+        ids: structured.sources.map((source) => source.id),
+      };
+    }
+
+    async function ask(question: string) {
+      return askWith(await connect(), question);
+    }
+
+    /** The passages returned as the answer itself, leaving out the policy scope rules added beside them. */
+    function found(sources: { id: string; role: string }[]): string[] {
+      return sources.filter((source) => source.role !== "scope").map((source) => source.id);
     }
 
     it("returns cited answers when the data covers the question", async () => {
@@ -149,6 +164,41 @@ describe("sunleaf MCP server", () => {
       const { ids } = await ask("What are the shipping costs for international orders to Canada?");
       expect(ids).toContain("policy:shipping#shipping-costs");
       expect(ids).toContain("policy:shipping#where-we-ship");
+    });
+
+    it("keeps the India-only wholesale rule beside a wholesale FAQ that wins on its own", async () => {
+      const { match, sources, text } = await ask("Do you sell wholesale to cafes in Canada?");
+      expect(match).toBe("full");
+      // The case under test: an FAQ is the only answer and no wholesale policy section is.
+      expect(found(sources)).toContain("faq-019");
+      expect(found(sources).every((id) => id.startsWith("faq-"))).toBe(true);
+      expect(sources).toContainEqual(expect.objectContaining({ id: "policy:wholesale#who-can-apply", role: "scope" }));
+      expect(text).toContain("Wholesale orders ship inside India only.");
+    });
+
+    it("keeps the destination list beside a shipping FAQ that wins on its own", async () => {
+      const { sources, text } = await ask("How long does delivery take to Canada?");
+      // faq-002 gives international delivery times. Without the destination list, it reads as a yes.
+      expect(found(sources)).toContain("faq-002");
+      expect(found(sources).every((id) => id.startsWith("faq-"))).toBe(true);
+      expect(sources).toContainEqual(expect.objectContaining({ id: "policy:shipping#where-we-ship", role: "scope" }));
+      expect(text).toContain("We do not ship to other countries");
+    });
+
+    it("returns the governing policy's scope with every FAQ linked to a policy", async () => {
+      const data = loadData();
+      const client = await connect();
+      let checked = 0;
+      for (const faq of data.faqs) {
+        const policy = faq.policy;
+        if (policy === undefined) continue;
+        const scope = policyPassages(policy, data.policies[policy] ?? "").find((passage) => passage.scope);
+        const { ids } = await askWith(client, faq.question);
+        expect(ids, faq.id).toContain(faq.id);
+        expect(ids, `${faq.id} without its ${policy} scope`).toContain(scope?.id);
+        checked += 1;
+      }
+      expect(checked).toBeGreaterThan(0);
     });
 
     it("never presents a fact the data does not hold as a full answer", async () => {

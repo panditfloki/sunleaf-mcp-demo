@@ -7,7 +7,7 @@ export interface Passage {
   id: string;
   title: string;
   text: string;
-  /** The policy a section belongs to. Not set for FAQs. */
+  /** The policy a section belongs to, or the policy that governs an FAQ. Its scope travels with the passage. */
   policy?: PolicyName;
   /** True for a policy's first section, which states its scope, such as where the shop ships. */
   scope?: boolean;
@@ -87,7 +87,7 @@ export function policyPassages(name: PolicyName, markdown: string): Passage[] {
 export function passageIndex(data: SunleafData): SearchIndex<Passage> {
   const docs: SearchDoc<Passage>[] = data.faqs.map((faq) => ({
     id: faq.id,
-    item: { id: faq.id, title: faq.question, text: faq.answer },
+    item: { id: faq.id, title: faq.question, text: faq.answer, policy: faq.policy },
     fields: [
       { text: faq.question, weight: 3 },
       { text: faq.tags.join(" "), weight: 2 },

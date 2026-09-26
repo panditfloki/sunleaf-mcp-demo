@@ -210,7 +210,7 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
       title: "Find answer sources",
       description:
         "Search the FAQs and policies together for a customer question. Returns passages with ids to cite, marked as answers " +
-        "or as partial matches, plus the scope rules of any policy they come from. A partial match can still answer by " +
+        "or as partial matches, plus the scope rules of any policy they come from or are governed by. A partial match can still answer by " +
         "exclusion: a list of the countries the shop ships to answers whether it ships somewhere else. If nothing matches, " +
         "it says so: tell the customer instead of guessing.",
       inputSchema: z.object({ question: z.string().min(1).describe("The customer's question, in their own words") }),
@@ -232,7 +232,8 @@ export function createServer(options: CreateServerOptions = {}): McpServer {
       const sources = chosen.map((hit) => toSource(hit.item, match === "full" ? "answer" : "partial"));
 
       // A policy's first section states its scope, such as where the shop ships. Keep it beside any
-      // other section of that policy, so an answer about shipping costs cannot lose the destinations rule.
+      // other section of that policy, and beside any FAQ the policy governs, so an answer about shipping
+      // costs or wholesale accounts cannot lose the rule about where the shop ships.
       for (const hit of chosen) {
         const scope = hit.item.policy === undefined ? undefined : scopes.get(hit.item.policy);
         if (scope && !sources.some((source) => source.id === scope.id)) sources.push(toSource(scope, "scope"));

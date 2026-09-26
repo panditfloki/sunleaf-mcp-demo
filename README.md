@@ -117,9 +117,9 @@ my-shop/
 ```
 
 - **products.json**: an array of products with `id`, `name`, `category`, `price_inr`, `price_usd`, `sizes` (list), `in_stock` (true or false), `tags` (list) and `short_description`.
-- **faqs.json**: an array of FAQs with `id`, `question`, `answer` and `tags` (list).
+- **faqs.json**: an array of FAQs with `id`, `question`, `answer` and `tags` (list), plus an optional `policy` (`shipping`, `returns`, `privacy` or `wholesale`) naming the policy that governs the FAQ. The named policy file must exist.
 - **policies/**: Markdown files. Each `## ` heading becomes a separate section that can be cited. Missing policy files are skipped.
-- **Start each policy with a section that states its scope**, such as where you ship or who can apply. `answer_sources` returns that first section together with any other section of the same policy, so an answer about shipping costs cannot lose the rule about destinations.
+- **Start each policy with a section that states its scope**, such as where you ship or who can apply. `answer_sources` returns that first section together with any other section of the same policy and with any FAQ linked to it through `policy`, so an answer about shipping costs or a wholesale FAQ cannot lose the rule about destinations.
 - **Ids ignore case and surrounding spaces**, in validation and lookup alike. `X-1` and `x-1` count as the same id, so a file with both is rejected as a duplicate.
 
 The server checks both JSON files when it starts, and stops with a clear message if a field is missing or an id is used twice.
